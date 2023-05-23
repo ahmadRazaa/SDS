@@ -29,10 +29,10 @@ class TopicViewSet(viewsets.ModelViewSet):
         return response
 
     def retrieve(self, request, *args, **kwargs):
-        cache_key = CacheKeys.TOPIC_DETAIL_KEY_PREFIX + kwargs["pk"]
+        cache_key = f"{CacheKeys.TOPIC_DETAIL_KEY_PREFIX}{kwargs['pk']}"
         cached_data = cache.get(cache_key)
 
-        if cached_data:
+        if cached_data is not None:
             return Response(cached_data)
 
         response = super().retrieve(request, *args, **kwargs)
@@ -58,7 +58,7 @@ class FolderViewSet(viewsets.ModelViewSet):
         return response
 
     def retrieve(self, request, *args, **kwargs):
-        cache_key = CacheKeys.FOLDER_DETAIL_KEY_PREFIX + kwargs["pk"]
+        cache_key = f"{CacheKeys.FOLDER_DETAIL_KEY_PREFIX}{kwargs['pk']}"
         cached_data = cache.get(cache_key)
 
         if cached_data is not None:
@@ -86,7 +86,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return response
 
     def retrieve(self, request, *args, **kwargs):
-        cache_key = CacheKeys.DOCUMENT_DETAIL_KEY_PREFIX + kwargs["pk"]
+        cache_key = f"{CacheKeys.DOCUMENT_DETAIL_KEY_PREFIX}{kwargs['pk']}"
         cached_data = cache.get(cache_key)
 
         if cached_data is not None:
@@ -107,7 +107,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         document = serializer.save()
-        # notify_slack_on_upload(document)
+        notify_slack_on_upload(document)
 
 
 @receiver([post_save, post_delete], sender=Topic)

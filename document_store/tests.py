@@ -89,7 +89,7 @@ class TopicViewSetTestCase(TestCase):
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response1.data,
-            cache.get(CacheKeys.TOPIC_DETAIL_KEY_PREFIX + str(self.topic1.pk)),
+            cache.get(f"{CacheKeys.TOPIC_DETAIL_KEY_PREFIX}{self.topic1.pk}"),
         )
 
         # Update the topic and make a second request
@@ -99,7 +99,7 @@ class TopicViewSetTestCase(TestCase):
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response2.data,
-            cache.get(CacheKeys.TOPIC_DETAIL_KEY_PREFIX + str(self.topic1.pk)),
+            cache.get(f"{CacheKeys.TOPIC_DETAIL_KEY_PREFIX}{self.topic1.pk}"),
         )
 
         self.assertNotEqual(response1.data, response2.data)
@@ -278,7 +278,7 @@ class DocumentViewSetTestCase(TestCase):
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response1.data,
-            cache.get(CacheKeys.DOCUMENT_DETAIL_KEY_PREFIX + str(self.document1.pk)),
+            cache.get(f"{CacheKeys.DOCUMENT_DETAIL_KEY_PREFIX}{self.document1.pk}"),
         )
 
         # Update the document and make a second request
@@ -288,7 +288,7 @@ class DocumentViewSetTestCase(TestCase):
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response2.data,
-            cache.get(CacheKeys.DOCUMENT_DETAIL_KEY_PREFIX + str(self.document1.pk)),
+            cache.get(f"{CacheKeys.DOCUMENT_DETAIL_KEY_PREFIX}{self.document1.pk}"),
         )
 
         self.assertNotEqual(response1.data, response2.data)
