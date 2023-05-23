@@ -22,7 +22,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
     permission_classes = []
 
     def get_queryset(self):
-        queryset = Document.objects.all()
+        queryset = Document.objects.select_related("topic", "folder").all()
         topic = self.request.query_params.get("topic")
 
         if topic is not None:
