@@ -1,12 +1,12 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 from .models import Document, Folder, Topic
-from .serializers import DocumentSerializer, FolderSerializer, TopicSerializer
 from .pagination import StandardPagination
+from .serializers import DocumentSerializer, FolderSerializer, TopicSerializer
 
 
 class TopicViewSetTestCase(TestCase):
@@ -41,7 +41,7 @@ class TopicViewSetTestCase(TestCase):
         topics = Topic.objects.all()
         paginated_topics = paginator.paginate_queryset(topics, request=response)
         serializer = TopicSerializer(paginated_topics, many=True)
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("results"), serializer.data)
 
@@ -87,10 +87,13 @@ class FolderViewSetTestCase(TestCase):
         response = client.get(reverse("folder-list"))
 
         folders = Folder.objects.all()
-        serializer = FolderSerializer(folders, many=True)
+        response.query_params = {}
+        paginator = StandardPagination()
+        paginated_folders = paginator.paginate_queryset(folders, request=response)
+        serializer = FolderSerializer(paginated_folders, many=True)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.data.get("results"), serializer.data)
 
     def test_get_folder(self):
         client = APIClient()
@@ -143,10 +146,13 @@ class DocumentViewSetTestCase(TestCase):
         response = client.get(reverse("document-list"))
 
         documents = Document.objects.all()
-        serializer = DocumentSerializer(documents, many=True)
+        response.query_params = {}
+        paginator = StandardPagination()
+        paginated_documents = paginator.paginate_queryset(documents, request=response)
+        serializer = DocumentSerializer(paginated_documents, many=True)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.data.get("results"), serializer.data)
 
     def test_filter_documents_by_topic(self):
         client = APIClient()
@@ -155,10 +161,13 @@ class DocumentViewSetTestCase(TestCase):
         response = client.get(url, {"topic": topic_name})
 
         documents = Document.objects.filter(topic__name=topic_name)
-        serializer = DocumentSerializer(documents, many=True)
+        response.query_params = {}
+        paginator = StandardPagination()
+        paginated_documents = paginator.paginate_queryset(documents, request=response)
+        serializer = DocumentSerializer(paginated_documents, many=True)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.data.get("results"), serializer.data)
 
     def test_get_document(self):
         client = APIClient()
