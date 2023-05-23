@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
@@ -7,6 +8,7 @@ from rest_framework.test import APIClient
 from .models import Document, Folder, Topic
 from .pagination import StandardPagination
 from .serializers import DocumentSerializer, FolderSerializer, TopicSerializer
+from .cache_manager import CacheKeys
 
 
 class TopicViewSetTestCase(TestCase):
@@ -15,6 +17,10 @@ class TopicViewSetTestCase(TestCase):
         self.topic2 = Topic.objects.create(name="Topic 2")
         self.valid_payload = {"name": "New Topic"}
         self.invalid_payload = {"name": ""}
+
+    def tearDown(self):
+        # Clear cache after each test
+        cache.clear()
 
     def test_create_topic_with_valid_payload(self):
         client = APIClient()
@@ -55,6 +61,22 @@ class TopicViewSetTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializer.data)
+
+    def test_topic_list_caching(self):
+        client = APIClient()
+        # Make the first request
+        response1 = client.get(reverse("topic-list"))
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        self.assertEqual(response1.data, cache.get(CacheKeys.TOPIC_LIST_KEY))
+
+        # Update the topic and make a second request
+        self.topic1.name = "Updated Topic"
+        self.topic1.save()
+        response2 = client.get(reverse("topic-list"))
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.data, cache.get(CacheKeys.TOPIC_LIST_KEY))
+
+        self.assertNotEqual(response1.data, response2.data)
 
 
 class FolderViewSetTestCase(TestCase):
