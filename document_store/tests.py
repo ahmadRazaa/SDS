@@ -78,6 +78,28 @@ class TopicViewSetTestCase(TestCase):
 
         self.assertNotEqual(response1.data, response2.data)
 
+    def test_topic_detail_caching(self):
+        # Make the first request
+        url = reverse("topic-detail", args=[self.topic1.pk])
+        response1 = self.client.get(url)
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response1.data,
+            cache.get(CacheKeys.TOPIC_DETAIL_KEY_PREFIX + str(self.topic1.pk)),
+        )
+
+        # Update the topic and make a second request
+        self.topic1.name = "Updated Topic"
+        self.topic1.save()
+        response2 = self.client.get(url)
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response2.data,
+            cache.get(CacheKeys.TOPIC_DETAIL_KEY_PREFIX + str(self.topic1.pk)),
+        )
+
+        self.assertNotEqual(response1.data, response2.data)
+
 
 class FolderViewSetTestCase(TestCase):
     def setUp(self):
@@ -85,6 +107,10 @@ class FolderViewSetTestCase(TestCase):
         self.folder2 = Folder.objects.create(name="Folder 2")
         self.valid_payload = {"name": "New Folder"}
         self.invalid_payload = {"name": ""}
+
+    def tearDown(self):
+        # Clear cache after each test
+        cache.clear()
 
     def test_create_folder_with_valid_payload(self):
         client = APIClient()
@@ -128,6 +154,22 @@ class FolderViewSetTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializer.data)
 
+    def test_folder_list_caching(self):
+        client = APIClient()
+        # Make the first request
+        response1 = client.get(reverse("folder-list"))
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        self.assertEqual(response1.data, cache.get(CacheKeys.FOLDER_LIST_KEY))
+
+        # Update the folder and make a second request
+        self.folder1.name = "Updated Folder"
+        self.folder1.save()
+        response2 = client.get(reverse("folder-list"))
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.data, cache.get(CacheKeys.FOLDER_LIST_KEY))
+
+        self.assertNotEqual(response1.data, response2.data)
+
 
 class DocumentViewSetTestCase(TestCase):
     def setUp(self):
@@ -146,6 +188,10 @@ class DocumentViewSetTestCase(TestCase):
             "file": SimpleUploadedFile("temp.txt", b"file_content"),
         }
         self.invalid_payload = {"name": ""}
+
+    def tearDown(self):
+        # Clear cache after each test
+        cache.clear()
 
     def test_create_document_with_valid_payload(self):
         client = APIClient()
@@ -201,3 +247,43 @@ class DocumentViewSetTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializer.data)
+
+    def test_document_list_caching(self):
+        client = APIClient()
+        # Make the first request
+        response1 = client.get(reverse("document-list"))
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        self.assertEqual(response1.data, cache.get(CacheKeys.DOCUMENT_LIST_KEY))
+
+        # Update the doc and make a second request
+        self.document1.name = "Updated document"
+        self.document1.save()
+        response2 = client.get(reverse("document-list"))
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.data, cache.get(CacheKeys.DOCUMENT_LIST_KEY))
+
+        self.assertNotEqual(response1.data, response2.data)
+
+    def test_document_detail_caching(self):
+        client = APIClient()
+
+        # Make the first request
+        url = reverse("document-detail", args=[self.document1.pk])
+        response1 = client.get(url)
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response1.data,
+            cache.get(CacheKeys.DOCUMENT_DETAIL_KEY_PREFIX + str(self.document1.pk)),
+        )
+
+        # Update the document and make a second request
+        self.document1.name = "Updated Document"
+        self.document1.save()
+        response2 = client.get(url)
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response2.data,
+            cache.get(CacheKeys.DOCUMENT_DETAIL_KEY_PREFIX + str(self.document1.pk)),
+        )
+
+        self.assertNotEqual(response1.data, response2.data)
