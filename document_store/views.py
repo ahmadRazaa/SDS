@@ -8,6 +8,7 @@ from .cache_manager import CacheKeys
 from .models import Document, Folder, Topic
 from .pagination import StandardPagination
 from .serializers import FolderSerializer, TopicSerializer, DocumentSerializer
+from .slack import notify_slack_on_upload
 
 
 class TopicViewSet(viewsets.ModelViewSet):
@@ -100,6 +101,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(topic__name=topic)
 
         return queryset
+    
+    def perform_create(self, serializer):
+        document = serializer.save()
+        notify_slack_on_upload(document)
 
 
 @receiver([post_save, post_delete], sender=Topic)
