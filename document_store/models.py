@@ -42,7 +42,7 @@ class Document(models.Model):
         null=True,
         related_name="documents",
     )
-    file = models.FileField(upload_to="documents/")
+    file = models.FileField(upload_to="static/upload/")
 
     def __str__(self):
         return f"{self.folder}/{self.name}"
