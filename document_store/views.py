@@ -1,13 +1,14 @@
 from rest_framework import viewsets
 
 from .models import Document, Folder, Topic
-from .serializers import DocumentSerializer
-from .serializers import FolderSerializer, TopicSerializer
+from .serializers import FolderSerializer, TopicSerializer, DocumentSerializer
+from .pagination import StandardPagination
 
 
 class TopicViewSet(viewsets.ModelViewSet):
     queryset = Topic.objects.all()
     serializer_class = TopicSerializer
+    pagination_class = StandardPagination
     permission_classes = []
 
 
