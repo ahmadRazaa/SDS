@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 
 from .models import Document, Folder, Topic
-from .serializers import FolderSerializer, TopicSerializer, DocumentSerializer
 from .pagination import StandardPagination
+from .serializers import FolderSerializer, TopicSerializer, DocumentSerializer
 
 
 class TopicViewSet(viewsets.ModelViewSet):
@@ -15,11 +15,13 @@ class TopicViewSet(viewsets.ModelViewSet):
 class FolderViewSet(viewsets.ModelViewSet):
     queryset = Folder.objects.all()
     serializer_class = FolderSerializer
+    pagination_class = StandardPagination
     permission_classes = []
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
+    pagination_class = StandardPagination
     permission_classes = []
 
     def get_queryset(self):
