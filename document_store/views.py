@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from rest_framework import viewsets
+from rest_framework import viewsets, authentication, permissions
 from rest_framework.response import Response
 
 from .cache_manager import CacheKeys
@@ -15,7 +15,8 @@ class TopicViewSet(viewsets.ModelViewSet):
     queryset = Topic.objects.all()
     serializer_class = TopicSerializer
     pagination_class = StandardPagination
-    permission_classes = []
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
 
     def list(self, request, *args, **kwargs):
         cached_data = cache.get(CacheKeys.TOPIC_LIST_KEY)
@@ -43,7 +44,8 @@ class FolderViewSet(viewsets.ModelViewSet):
     queryset = Folder.objects.all()
     serializer_class = FolderSerializer
     pagination_class = StandardPagination
-    permission_classes = []
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
 
     def list(self, request, *args, **kwargs):
         cached_data = cache.get(CacheKeys.FOLDER_LIST_KEY)
@@ -70,7 +72,8 @@ class FolderViewSet(viewsets.ModelViewSet):
 class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
     pagination_class = StandardPagination
-    permission_classes = []
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.TokenAuthentication]
 
     def list(self, request, *args, **kwargs):
         cached_data = cache.get(CacheKeys.DOCUMENT_LIST_KEY)
@@ -101,10 +104,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(topic__name=topic)
 
         return queryset
-    
+
     def perform_create(self, serializer):
         document = serializer.save()
-        notify_slack_on_upload(document)
+        # notify_slack_on_upload(document)
 
 
 @receiver([post_save, post_delete], sender=Topic)

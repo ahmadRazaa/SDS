@@ -3,6 +3,7 @@ from rest_framework import status
 
 from slack import WebhookClient
 
+
 def notify_slack_on_upload(document):
     client = WebhookClient(settings.SLACK_WEBHOOK_URL)
 

@@ -75,17 +75,24 @@ WSGI_APPLICATION = "SDS.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "sds",
+#         "USER": "sdsuser",
+#         "PASSWORD": "postgres",
+#         "HOST": "localhost",
+#         "PORT": "",
+#     }
+# }
+
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "sds",
-        "USER": "sdsuser",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
-        "PORT": "",
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -104,6 +111,12 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+}
 
 
 # Internationalization
@@ -130,4 +143,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SLACK_API_TOKEN = ""
 SLACK_CHANNEL = ""
-SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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"
+SLACK_WEBHOOK_URL = (
+    "https://hooks.slack.com/services/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"
+)
