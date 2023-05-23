@@ -44,11 +44,53 @@ class FolderViewSet(viewsets.ModelViewSet):
     pagination_class = StandardPagination
     permission_classes = []
 
+    def list(self, request, *args, **kwargs):
+        cached_data = cache.get(CacheKeys.FOLDER_LIST_KEY)
+
+        if cached_data is not None:
+            return Response(cached_data)
+
+        response = super().list(request, *args, **kwargs)
+        cache.set(CacheKeys.FOLDER_LIST_KEY, response.data)
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        cache_key = CacheKeys.FOLDER_DETAIL_KEY_PREFIX + kwargs["pk"]
+        cached_data = cache.get(cache_key)
+
+        if cached_data is not None:
+            return Response(cached_data)
+
+        response = super().retrieve(request, *args, **kwargs)
+        cache.set(cache_key, response.data)
+        return response
+
 
 class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
     pagination_class = StandardPagination
     permission_classes = []
+
+    def list(self, request, *args, **kwargs):
+        cached_data = cache.get(CacheKeys.DOCUMENT_LIST_KEY)
+
+        if cached_data is not None:
+            return Response(cached_data)
+
+        response = super().list(request, *args, **kwargs)
+        cache.set(CacheKeys.DOCUMENT_LIST_KEY, response.data)
+        return response
+
+    def retrieve(self, request, *args, **kwargs):
+        cache_key = CacheKeys.DOCUMENT_DETAIL_KEY_PREFIX + kwargs["pk"]
+        cached_data = cache.get(cache_key)
+
+        if cached_data is not None:
+            return Response(cached_data)
+
+        response = super().retrieve(request, *args, **kwargs)
+        cache.set(cache_key, response.data)
+        return response
 
     def get_queryset(self):
         queryset = Document.objects.select_related("topic", "folder").all()
