@@ -10,7 +10,9 @@ class TopicSerializer(serializers.ModelSerializer):
 
 
 class FolderSerializer(serializers.ModelSerializer):
-    children = serializers.SerializerMethodField()  # consists of files and nested folders
+    children = (
+        serializers.SerializerMethodField()
+    )  # consists of files and nested folders
 
     def get_children(self, instance):
         children = [

@@ -76,13 +76,13 @@ WSGI_APPLICATION = "SDS.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'sds',
-        'USER': 'sdsuser',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': '',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "sds",
+        "USER": "sdsuser",
+        "PASSWORD": "postgres",
+        "HOST": "localhost",
+        "PORT": "",
     }
 }
 
