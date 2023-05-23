@@ -6,6 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 from .models import Document, Folder, Topic
 from .serializers import DocumentSerializer, FolderSerializer, TopicSerializer
+from .pagination import StandardPagination
 
 
 class TopicViewSetTestCase(TestCase):
@@ -35,11 +36,14 @@ class TopicViewSetTestCase(TestCase):
         client = APIClient()
         response = client.get(reverse("topic-list"))
 
+        response.query_params = {}
+        paginator = StandardPagination()
         topics = Topic.objects.all()
-        serializer = TopicSerializer(topics, many=True)
-
+        paginated_topics = paginator.paginate_queryset(topics, request=response)
+        serializer = TopicSerializer(paginated_topics, many=True)
+        
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.data.get("results"), serializer.data)
 
     def test_get_topic(self):
         client = APIClient()
